@@ -12,64 +12,57 @@ package net.sf.cache4j.impl;
 import net.sf.cache4j.CacheException;
 
 /**
- * Класс CacheObject это оболочка для кешируемых объектов.
+ * зј“е­еЇ№и±Ўзљ„и®ѕи®Ў
+ * @author longjia.zt
  *
- * @version $Revision: 1.0 $ $Date:$
- * @author Yuriy Stepovoy. <a href="mailto:stepovoy@gmail.com">stepovoy@gmail.com</a>
- **/
-
+ */
 public class CacheObject {
-// ----------------------------------------------------------------------------- Константы
-// ----------------------------------------------------------------------------- Атрибуты класса
-
-    /**
-     * Идентификатор объекта
-     */
+ 
+	/**
+	 * зј“е­еЇ№и±ЎID
+	 */
     private Object _objId;
 
     /**
-     * Кешируемый объект
-     */
+     * зј“е­еЇ№и±Ў
+     */ 
     protected Object _obj;
 
     /**
-     * Количество обращений к объекту
+     * и®їй—®ж¬Ўж•°з»џи®ЎпјЊдЅњдёєLFUиї‡ж»¤з®—жі•гЂ‚
      */
     private long _accessCount;
 
     /**
-     * Время создания объекта
+     * FIFOиї‡ж»¤з®—жі•дЅїз”Ё
      */
     private long _createTime;
 
     /**
-     * Время последнего доступа к объекту
+     * жњЂеђЋиў«и®їй—®ж—¶й—ґгЂ‚LRUиї‡ж»¤з®—жі•
      */
     private long _lastAccessTime;
 
     /**
-     * Размер объекта в байтах
+     * зј“е­еЇ№и±Ўе¤§е°Џ
      */
     private int _objSize;
 
     /**
-     * Поток блокирующий объект
+     * зєїзЁ‹й”Ѓе®љ,зњ‹зљ„дёЌжЇз‰№е€«жЋз™Ѕ 
      */
+    //TODO
     private Thread _lockThread;
 
     /**
-     * Уникальный идентификатор объекта
+     * дё»й”®ID
      */
     private long _id;
 
-    //private long _version = 0; //версия объекта
-    //private int _priority = 0; //приобритет объекта
-// ----------------------------------------------------------------------------- Статические переменные
-// ----------------------------------------------------------------------------- Конструкторы
-
+ 
     /**
-     * Конструктор
-     * @param objId идентификатор кешируемого объекта
+     * е€›е»єж–°зљ„зј“е­еЇ№и±Ў
+     * @param objId
      */
     CacheObject(Object objId) {
         _objId = objId;
@@ -84,114 +77,80 @@ public class CacheObject {
         _id = nextId();
     }
 
-// ----------------------------------------------------------------------------- Public методы
+// ----------------------------------------------------------------------------- Public ж€ѕиќѕжЅІ
 
-    /**
-     * Блокирует все потоки внутри метода, если метод предварительно был вызван
-     * каким либо потоком. В пределах одного потока этот метод можно вызывать
-     * произвольное количество раз, это не будет приводить к блоктровке текущего
-     * потока.
-     * @throws CacheException
-     */
+  /**
+   * дёЌжЇз‰№е€«жЋз™Ѕ еє”иЇҐжЇз”ЁжќҐй”Ѓе®љзљ„
+   * @throws CacheException
+   */
     synchronized void lock() throws CacheException {
-        // в классе Mutex есть такая проверка
-        //if (Thread.interrupted()) throw new InterruptedException();
-        //?
-        //synchronized (this) {
-
-
-        //если объект заблокирован и текущий поток равен потоку который заблоктровал
-        //то ничего не делаем. это cделано для того чтобы при повторном вызове lock
-        //вызывающий поток не заснул в ожидании непонятно чего.
         if(_lockThread!=null && Thread.currentThread()==_lockThread){
             return;
         }
 
         try {
             while (_lockThread!=null) {
-                //System.out.println("" + this.hashCode() + " WAIT LOCK Thread:" + Thread.currentThread().getName() + " " + (_lockThread!=null));
-                wait();
-                //System.out.println("" + this.hashCode() + " WAKE UP LOCK Thread:" + Thread.currentThread().getName() + " " + (_lockThread!=null));
-            }
-            //System.out.println(""+this.hashCode()+" GET LOCK Thread:"+Thread.currentThread().getName()+" "+(_lockThread!=null));
-            _lockThread = Thread.currentThread(); //устанавливаем блокирующий поток
+                 wait();
+             }
+             _lockThread = Thread.currentThread(); //зЇ‘ињћзЈ¬жЂ†жЎ е™±пїЅ зЉ­й“ЊжЎЉз°‹о‹™пїЅ й•±иќѕпїЅ
         } catch (InterruptedException ex) {
-            notify();      //так в два раза быстрее
-            //notifyAll(); //оповещаем все потоки
-            throw new CacheException(ex.getMessage());
+            notify();      //ињћпїЅ пїЅ жє»пїЅ з–ЈзЋЋ зЊЃиЂ±з–±пїЅ
+             throw new CacheException(ex.getMessage());
         }
     }
 
     /**
-     * Снимает блокировку с объекта и будит один поток ожидающий блокировку на
-     * текущий объект.
+     *  
+     *  й‡Љж”ѕй”Ѓе®љ
      */
     synchronized void unlock() {
         _lockThread = null;
 
-        //System.out.println("" + this.hashCode() + " RELEASE LOCK Thread:" + Thread.currentThread().getName());
-        notify();      //так в два раза быстрее
-        //notifyAll(); //оповещаем все потоки
-    }
+         notify();      //ињћпїЅ пїЅ жє»пїЅ з–ЈзЋЋ зЊЃиЂ±з–±пїЅ
+     }
 
-    /**
-     * Возвращает кешируемый объект
-     */
+ 
     Object getObject() {
         return _obj;
     }
 
-    /**
-     * Устанавливает кешируемый объект
-     */
+ 
     void setObject(Object obj) {
         _obj = obj;
     }
 
-    /**
-     * Возвращает идентификатор кешируемого объекта
-     */
+ 
     Object getObjectId(){
         return _objId;
     }
 
-    /**
-     * Возвращает количество обращений к объекту
-     */
+ 
     long getAccessCount() {
         return _accessCount;
     }
 
-    /**
-     * Возвращает время создания объекта в миллисекундах
-     */
+ 
     long getCreateTime() {
         return _createTime;
     }
 
-    /**
-     * Возвращает время последнего доступа в миллисекундах
-     */
+ 
     long getLastAccessTime() {
         return _lastAccessTime;
     }
 
-    /**
-     * Возвращает размер объекта в байтах
-     */
+ 
     long getObjectSize() {
         return _objSize;
     }
 
-    /**
-     * Устанавливает размер объекта в байтах
-     */
+ 
     void setObjectSize(int objSize) {
         _objSize = objSize;
     }
 
     /**
-     * Обновляет статистику по объекту
+     * ж›ґж–°з»џи®ЎдїЎжЃЇ  и®їй—®е‘Ѕдё­зј“е­  и®їй—®еўћеЉ 1  жњЂеђЋи®їй—®ж—¶й—ґ+1
      */
     void updateStatistics() {
         _accessCount++;
@@ -201,7 +160,7 @@ public class CacheObject {
     }
 
     /**
-     * Сбрасывает статистику объекта
+     * й‡ЌзЅ®еЇ№и±Ў
      */
     void reset(){
         _obj = null;
@@ -218,7 +177,7 @@ public class CacheObject {
     }
 
     /**
-     * Возвращает строковое представление объекта
+     * 
      */
     public String toString(){
         return "id:"+_objId+
@@ -228,23 +187,13 @@ public class CacheObject {
                 " size:"+_objSize+
                 " object:"+_obj;
     }
-// ----------------------------------------------------------------------------- Package scope методы
-// ----------------------------------------------------------------------------- Protected методы
-// ----------------------------------------------------------------------------- Private методы
-
     /**
-     * Счётчик
+     * е…Ёе±ЂеЏй‡ЏпјЊеђЊж—¶еЉ й”ЃиЋ·еЏ–е”ЇдёЂдё»й”®ID
      */
     private static long ID = 0;
-    /**
-     * Возвращает следующий уникальный идентификатор
-     */
     private static synchronized long nextId(){
         return ID++;
     }
-// ----------------------------------------------------------------------------- Inner классы
 }
 
-/*
-$Log: CacheObject.java,v $
-*/
+ 
