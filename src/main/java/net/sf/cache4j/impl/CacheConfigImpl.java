@@ -1,11 +1,3 @@
-/* =========================================================================
- * File: CacheConfigImpl.java$
- *
- * Copyright (c) 2006, Yuriy Stepovoy. All rights reserved.
- * email: stepovoy@gmail.com
- *
- * =========================================================================
- */
 
 package net.sf.cache4j.impl;
 
@@ -13,63 +5,53 @@ import net.sf.cache4j.CacheConfig;
 
 import java.util.Comparator;
 
+ 
 /**
- * Класс CacheConfigImpl содержит конфигурацию кеша
+ * зј“е­й…ЌзЅ®йЎ№
+ * @author longjia.zt
  *
- * @version $Revision: 1.0 $ $Date:$
- * @author Yuriy Stepovoy. <a href="mailto:stepovoy@gmail.com">stepovoy@gmail.com</a>
- **/
-
+ */
 public class CacheConfigImpl implements CacheConfig {
-// ----------------------------------------------------------------------------- Константы
-// ----------------------------------------------------------------------------- Атрибуты класса
-    /** Идентификатор кеша */
+	/**
+	 * зј“е­ID
+	 */
     private Object _cacheId;
-    /** Описание кеша */
+    /**
+     * зј“е­жЏЏиї°
+     */
     private String _cacheDesc;
-    /** Максимальное время жизни объектов в кеше */
+    /**
+     * е­жґ»ж—¶й—ґ
+     */
     private long _ttl;
-    /** Максимальное время бездействия объектов в кеше */
+     /**
+      * з©єй—Іж—¶й—ґ
+      */
     private long _idleTime;
-    /** Максимальный объём занимаемый объектами кеша */
+     
     private long _maxMemorySize;
-    /** Максимальный количество объектов в кеше */
+ 
     private int _maxSize;
-    /** Тип кеша */
+ 
     private String _type;
-    /** Алгоритм вытеснения объектов */
+  
     private String _algorithm;
-    /** Тип ссылки на хранимый объект */
+   
     private String _reference;
-    /** Тип ссылки на хранимый объект */
+   
     private int _referenceInt;
-// ----------------------------------------------------------------------------- Статические переменные
-
-    /** Алгоритм вытеснения объектов - LRU */
+ 
     static final String LRU = "lru";
-    /** Алгоритм вытеснения объектов - LFU */
+ 
     static final String LFU = "lfu";
-    /** Алгоритм вытеснения объектов - FIFO */
+ 
     static final String FIFO = "fifo";
 
-    /** Тип связи с объектом - STRONG */
+ 
     static final int STRONG = 1;
-    /** Тип связи с объектом - SOFT */
+ 
     static final int SOFT = 2;
-
-// ----------------------------------------------------------------------------- Конструкторы
-    /**
-     * Конструктор
-     * @param cacheId идентификатор кеша
-     * @param cacheDesc описание кеша
-     * @param ttl максимальное время жизни объектов в кеше
-     * @param idleTime максимальное время бездействия объектов в кеше
-     * @param maxMemorySize максимальный объём занимаемый объектами кеша
-     * @param maxSize максимальный количество объектов в кеше
-     * @param type тип кеша
-     * @param algorithm алгоритм вытеснения объектов
-     * @param reference тип ссылки на хранимый объект
-     */
+ 
     public CacheConfigImpl(Object cacheId,
                            String cacheDesc,
                            long ttl,
@@ -95,8 +77,7 @@ public class CacheConfigImpl implements CacheConfig {
             _referenceInt = SOFT;
         }
     }
-// ----------------------------------------------------------------------------- Public методы
-
+ 
     public Object getCacheId() {
         return _cacheId;
     }
@@ -124,19 +105,12 @@ public class CacheConfigImpl implements CacheConfig {
     public String getReference(){
         return _reference;
     }
-// ----------------------------------------------------------------------------- Package scope методы
-    /**
-     * Создаёт оболочку для хранения объектов
-     * @param objId идентификатор объекта
-     * @return возвращает новый объект
-     */
+ 
     CacheObject newCacheObject(Object objId){
         return _referenceInt==CacheConfigImpl.STRONG ? new CacheObject(objId) : new SoftCacheObject(objId);
     }
 
-    /**
-     * Возвращает компаратор с учётом алгоритма вытеснения
-     */
+ 
     Comparator getAlgorithmComparator(){
         if(_algorithm.equals(CacheConfigImpl.LRU)) {
             return new LRUComparator();
@@ -148,11 +122,6 @@ public class CacheConfigImpl implements CacheConfig {
             throw new RuntimeException("Unknown algorithm:"+_algorithm);
         }
     }
-// ----------------------------------------------------------------------------- Protected методы
-// ----------------------------------------------------------------------------- Private методы
-// ----------------------------------------------------------------------------- Inner классы
-}
+ }
 
-/*
-$Log: CacheConfigImpl.java,v $
-*/
+ 

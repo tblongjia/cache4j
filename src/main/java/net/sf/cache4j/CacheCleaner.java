@@ -22,7 +22,10 @@ public class CacheCleaner extends Thread {
     }
 
  
- 
+    /**
+     * 重新设置缓存马上唤醒重新清理
+     * @param cleanInterval
+     */
     public void setCleanInterval(long cleanInterval) {
         _cleanInterval = cleanInterval;
 

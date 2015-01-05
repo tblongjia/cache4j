@@ -1,11 +1,3 @@
-/* =========================================================================
- * File: $Id: $CacheFactory.java,v$
- *
- * Copyright (c) 2006, Yuriy Stepovoy. All rights reserved.
- * email: stepovoy@gmail.com
- *
- * =========================================================================
- */
 
 package net.sf.cache4j;
 
@@ -17,57 +9,34 @@ import net.sf.cache4j.impl.Configurator;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.InputStream;
-
-/**
- * Класс CacheFactory управляет экземплярами кешей.
- *
- * @version $Revision: 1.0 $ $Date:$
- * @author Yuriy Stepovoy. <a href="mailto:stepovoy@gmail.com">stepovoy@gmail.com</a>
- **/
-
+ 
 public class CacheFactory {
-// ----------------------------------------------------------------------------- Константы
-// ----------------------------------------------------------------------------- Атрибуты класса
-// ----------------------------------------------------------------------------- Статические переменные
-
-    /**
-     * Карта с экземплярами кешей
-     */
+	/**
+	 * ж‰Ђжњ‰е®ћдѕ‹еЊ–зљ„cache
+	 */
     private Map _cacheMap;
 
-    /**
-     * Поток занимающийся очисткой кеша
-     */
     private CacheCleaner _cleaner;
 
     /**
-     * Singleton
+     * еЌ•дѕ‹жЁЎејЏпјЊ
      */
     private static final CacheFactory _cacheFactory = new CacheFactory();
 
-// ----------------------------------------------------------------------------- Конструкторы
-
-    /**
-     * Конструктор
-     */
     public CacheFactory() {
         _cacheMap = new HashMap();
         _cleaner = new CacheCleaner(30000); //default 30sec
         _cleaner.start();
     }
 
-// ----------------------------------------------------------------------------- Public методы
-
-    /**
-     * Возвращает экземпляр CacheFactory
-     */
+ 
     public static CacheFactory getInstance(){
         return _cacheFactory;
     }
 
     /**
-     * Загружает список кешей из xml конфигурации, без очистки CacheFactory.
-     * @param in входной поток с xml конфигурацией
+     * еЉ иЅЅй…ЌзЅ®йЎ№пјЊе…ЁйѓЁе€ќе§‹еЊ–зј“е­ж•°жЌ®
+     * @param in
      * @throws CacheException
      */
     public void loadConfig(InputStream in) throws CacheException {
@@ -75,12 +44,9 @@ public class CacheFactory {
     }
 
     /**
-     * Добавляет кеш. Кеш кроме интерфейса Cache должен реализовывать интерфейс ManagedCache.
-     * @param cache кеш
-     * @throws NullPointerException если cache==null или cache.getCacheConfig()==null
-     * или cache.getCacheConfig().getCacheId()==null
-     * @throws CacheException если кеш уже существует или если добавляемый кеш не
-     * реализует интерфейс ManagedCache
+     * еўћеЉ дёЂдёЄзј“е­е€°зј“е­е·ҐеЋ‚
+     * @param cache
+     * @throws CacheException
      */
     public void addCache(Cache cache) throws CacheException {
         if(cache==null){
@@ -107,9 +73,10 @@ public class CacheFactory {
     }
 
     /**
-     * Возвращает кеш
-     * @param cacheId идентификатор кеша
-     * @throws NullPointerException если cacheId==null
+     * д»Ће·ҐеЋ‚иЋ·еЏ–зј“е­е®ћдѕ‹
+     * @param cacheId
+     * @return
+     * @throws CacheException
      */
     public Cache getCache(Object cacheId) throws CacheException {
         if(cacheId==null) {
@@ -122,9 +89,9 @@ public class CacheFactory {
     }
 
     /**
-     * Удаляет кеш
-     * @param cacheId идентификатор кеша
-     * @throws NullPointerException если cacheId==null
+     * ж №жЌ®IDд»Ће·ҐеЋ‚е€ й™¤зј“е­
+     * @param cacheId
+     * @throws CacheException
      */
     public void removeCache(Object cacheId) throws CacheException {
         if(cacheId==null) {
@@ -136,9 +103,10 @@ public class CacheFactory {
         }
     }
 
-    /**
-     * Возвращает массив с идентификаторами кешей
-     */
+   /**
+    * иЋ·еЏ–ж‰Ђжњ‰зј“е­зљ„ID
+    * @return
+    */
     public Object[] getCacheIds() {
         synchronized(_cacheMap) {
             return _cacheMap.keySet().toArray();
@@ -146,20 +114,11 @@ public class CacheFactory {
     }
 
     /**
-     * Устанавливает интервал очистки кеша
-     * @param time количество миллисекунд
+     * и®ѕзЅ®жё…зђ†зљ„ж—¶й—ґ
+     * @param time
      */
     public void setCleanInterval(long time) {
         _cleaner.setCleanInterval(time);
     }
-
-// ----------------------------------------------------------------------------- Package scope методы
-// ----------------------------------------------------------------------------- Protected методы
-// ----------------------------------------------------------------------------- Private методы
-// ----------------------------------------------------------------------------- Inner классы
-
+ 
 }
-
-/*
-$Log: CacheFactory.java,v $
-*/

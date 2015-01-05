@@ -1,12 +1,3 @@
-/* =========================================================================
- * File: $Id: $Configurator.java,v$
- *
- * Copyright (c) 2006, Yuriy Stepovoy. All rights reserved.
- * email: stepovoy@gmail.com
- *
- * =========================================================================
- */
-
 package net.sf.cache4j.impl;
 
 import org.w3c.dom.Document;
@@ -26,33 +17,23 @@ import net.sf.cache4j.CacheException;
 import net.sf.cache4j.CacheFactory;
 import net.sf.cache4j.Cache;
 import net.sf.cache4j.ManagedCache;
-
 /**
- * Класс Configurator выполняет загрузку XML конфигурации
+ * дё“й—Ёз”ЁжќҐи§Јжћђй…ЌзЅ®йЎ№зљ„
+ * @author longjia.zt
  *
- * @version $Revision: 1.0 $ $Date:$
- * @author Yuriy Stepovoy. <a href="mailto:stepovoy@gmail.com">stepovoy@gmail.com</a>
- **/
-
+ */
 public class Configurator {
-// ----------------------------------------------------------------------------- Константы
-// ----------------------------------------------------------------------------- Атрибуты класса
-// ----------------------------------------------------------------------------- Статические переменные
-    private final static long SECOND = 1000;
+   private final static long SECOND = 1000;
     private final static long MINUTE = SECOND * 60;
     private final static long HOUR   = MINUTE * 60;
 
     private final static long KB = 1024;
     private final static long MB = KB * 1024;
-
-// ----------------------------------------------------------------------------- Конструкторы
-// ----------------------------------------------------------------------------- Public методы
-
+ 
     /**
-     * Загружает конфигурацию. Все кеши указанные в конфигурации добавляются в
-     * {@link net.sf.cache4j.CacheFactory}.
-     * @param in входящий поток с XML конфигурацией
-     * @throws CacheException если найдена ошибка в конфигурации
+     * еЉ иЅЅй…ЌзЅ®йЎ№
+     * @param in
+     * @throws CacheException
      */
     public static void loadConfig(InputStream in) throws CacheException {
         CacheFactory cf = CacheFactory.getInstance();
@@ -65,8 +46,7 @@ public class Configurator {
             NodeList nodeList = document.getChildNodes();
             Node node = nodeList==null || nodeList.getLength()==0 ? null : nodeList.item(0);
 
-            //корневая нода должна называться cache-config
-            if (node==null || !"cache-factory".equalsIgnoreCase(node.getNodeName())) {
+             if (node==null || !"cache-factory".equalsIgnoreCase(node.getNodeName())) {
                 throw new CacheException("root node must be \"cache-factory\"");
             }
 
@@ -75,8 +55,7 @@ public class Configurator {
                 if(cleanInteval>0){
                     cf.setCleanInterval(cleanInteval);
                 } else {
-                    //по умолчанию 30 секунд
-                    cf.setCleanInterval(30000); //30sec
+                     cf.setCleanInterval(30000); //30sec
                 }
             }
 
@@ -143,16 +122,7 @@ public class Configurator {
         }
     }
 
-// ----------------------------------------------------------------------------- Package scope методы
-// ----------------------------------------------------------------------------- Protected методы
-// ----------------------------------------------------------------------------- Private методы
-
-    /**
-     * Преобразует строку в число.
-     * @param value строка
-     * @return возвращает число. Если передана пустая строка или null
-     * возвращается 0.
-     */
+ 
     private static int getInt(String value){
         if(value==null || value.trim().length()==0) {
             return 0;
@@ -160,14 +130,7 @@ public class Configurator {
 
         return Integer.parseInt(value);
     }
-
-    /**
-     * Преобразует строку в long. В конце строки можно указывать:
-     * s-секунды, m-минуты, h-часы.
-     * @param value строка
-     * @return возвращает число миллисекунд. Если передана пустая строка или null
-     * возвращается 0.
-     */
+ 
     private static long getTimeLong(String value){
         if(value==null || value.trim().length()==0) {
             return 0;
@@ -185,13 +148,7 @@ public class Configurator {
         }
     }
 
-    /**
-     * Преобразует строку в long. В конце строки можно добавлять: k-килобайт,
-     * m-мегабайт, g-гигабайт.
-     * @param value строка
-     * @return возвращает число байт. Если передана пустая строка или null
-     * возвращается 0.
-     */
+ 
     private static long getCapacityLong(String value){
         if(value==null || value.trim().length()==0) {
             return 0;
@@ -207,9 +164,4 @@ public class Configurator {
         }
     }
 
-// ----------------------------------------------------------------------------- Inner классы
-}
-
-/*
-$Log: Configurator.java,v $
-*/
+ }

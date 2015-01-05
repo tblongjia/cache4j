@@ -1,108 +1,52 @@
-/* =========================================================================
- * File: $Id: $SynchronizedCache.java,v$
- *
- * Copyright (c) 2006, Yuriy Stepovoy. All rights reserved.
- * email: stepovoy@gmail.com
- *
- * =========================================================================
- */
 
 package net.sf.cache4j.impl;
 
-import net.sf.cache4j.CacheException;
-import net.sf.cache4j.Cache;
-import net.sf.cache4j.CacheConfig;
-import net.sf.cache4j.CacheInfo;
-import net.sf.cache4j.ManagedCache;
-
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.io.IOException;
 
+import net.sf.cache4j.Cache;
+import net.sf.cache4j.CacheConfig;
+import net.sf.cache4j.CacheException;
+import net.sf.cache4j.CacheInfo;
+import net.sf.cache4j.ManagedCache;
 /**
- * Класс SynchronizedCache это реализация интерфейса {@link Cache}
- * с синхронизироваными методами доступа к объектам кеша.
- * <br>
- * Получение экземпляра кеша:
- * <pre>
- *     Cache _personCache = CacheFactory.getInstance().getCache("Person");
- * </pre>
- * Получение\помещение объекта:
- * <pre>
- *     Long id = ... ;
- *     try {
- *         Person person = (Person)_personCache.get(id);
- *         if (person != null) {
- *             return person;
- *         }
- *         person = loadPersonFromDb(id);
- *         _personCache.put(id, person);
- *     } catch (CacheException ce) {
- *         //throw new Exception(ce);
- *     }
- * </pre>
- * Удаление объекта:
- * <pre>
- *     Person person = ... ;
- *     Long id = person.getId();
- *     removePersonFromDb(id);
- *     try {
- *         _personCache.remove(id);
- *     } catch (CacheException ce) {
- *         //throw new Exception(ce);
- *     }
- * </pre>
+ * Synchronizedе®ћзЋ°зљ„зј“е­
+ * @author longjia.zt
  *
- * @version $Revision: 1.0 $ $Date:$
- * @author Yuriy Stepovoy. <a href="mailto:stepovoy@gmail.com">stepovoy@gmail.com</a>
- **/
+ */
+@SuppressWarnings("rawtypes")
 public class SynchronizedCache implements Cache, ManagedCache {
-// ----------------------------------------------------------------------------- Константы
-// ----------------------------------------------------------------------------- Атрибуты класса
-    /**
-     * Карта с кешируемыми объектами
-     */
-    private Map _map;
+	/**
+	 * е®ћй™…зљ„зј“е­ж•°жЌ®
+	 */
+	private Map _map;
 
-    /**
-     * Дерево с отсортироваными парами ключ\значение в зависимости от алгоритма удаления
-     */
+    //TODO
     private TreeMap _tmap;
 
     /**
-     * Конфигурация кеша
+     * зј“е­й…ЌзЅ®йЎ№
      */
     private CacheConfigImpl _config;
 
     /**
-     * Размер объектов кеша в байтах
+     * еЌ з”Ёе†…е­е¤§е°Џ
      */
     private long _memorySize;
 
     /**
-     * Информация о кеше
+     * зј“е­зљ„дёЂдє›е‘Ѕдё­дїЎжЃЇ
      */
     private CacheInfoImpl _cacheInfo;
 
-// ----------------------------------------------------------------------------- Статические переменные
-// ----------------------------------------------------------------------------- Конструкторы
-// ----------------------------------------------------------------------------- Public методы
-
-    //-------------------------------------------------------------------------- Cache interface
-    /**
-     * Помещает объект в кеш.
-     * @param objId идентификатор объекта
-     * @param obj объект
-     * @throws CacheException если возникли проблемы, например при вычислении размера объекта
-     * @throws NullPointerException если objId==null
-     */
+    
     public synchronized void put(Object objId, Object obj) throws CacheException {
         if(objId==null) {
             throw new NullPointerException("objId is null");
         }
 
-        //оцениваем размер объекта
         int objSize = 0;
         try {
             objSize = _config.getMaxMemorySize()>0 ? Utils.size(obj) : 0;
@@ -110,8 +54,7 @@ public class SynchronizedCache implements Cache, ManagedCache {
             throw new CacheException(e.getMessage());
         }
 
-        //проверяем не будет ли переполнение после помещения объекта
-        checkOverflow(objSize);
+         checkOverflow(objSize);
 
         CacheObject co = (CacheObject)_map.get(objId);
 
@@ -131,14 +74,7 @@ public class SynchronizedCache implements Cache, ManagedCache {
         _tmap.put(co, co);
     }
 
-    /**
-     * Возвращает объект из кеша.
-     * @param objId идентификатор объекта
-     * @return Объект возвращается только в том случае, если объект найден
-     * и время жизни объекта не закончилось и не превышено время бездействия.
-     * @throws CacheException если возникли проблемы
-     * @throws NullPointerException если objId==null
-     */
+ 
     public synchronized Object get(Object objId) throws CacheException {
         if(objId==null) {
             throw new NullPointerException("objId is null");
@@ -166,12 +102,7 @@ public class SynchronizedCache implements Cache, ManagedCache {
         }
     }
 
-    /**
-     * Удаляет объект из кеша.
-     * @param objId идентификатор объекта
-     * @throws CacheException если возникли проблемы
-     * @throws NullPointerException если objId==null
-     */
+ 
     public synchronized void remove(Object objId) throws CacheException {
         if(objId==null) {
             throw new NullPointerException("objId is null");
@@ -187,47 +118,28 @@ public class SynchronizedCache implements Cache, ManagedCache {
         }
     }
 
-    /**
-     * Возвращает количество объектов в кеше
-     */
+ 
     public int size() {
         return _map.size();
     }
 
-    /**
-     * Удаляет все объекты из кеша
-     * @throws CacheException если возникли проблемы
-     */
+  
     public synchronized void clear() throws CacheException {
         _map.clear();
         _tmap.clear();
         _memorySize = 0;
     }
 
-    /**
-     * Возвращает информацию о кеше
-     */
+   
     public CacheInfo getCacheInfo() {
         return _cacheInfo;
     }
 
-    /**
-     * Возвращает конфигруцию кеша
-     */
+  
     public CacheConfig getCacheConfig() {
         return _config;
     }
-    //-------------------------------------------------------------------------- Cache interface
-
-    //-------------------------------------------------------------------------- ManagedCache interface
-
-    /**
-     * Устанавливает конфигурацию кеша. При установке конфигурации все объекты
-     * кеша теряются.
-     * @param config конфигурация
-     * @throws CacheException если возникли проблемы
-     * @throws NullPointerException если config==null
-     */
+ 
     public synchronized void setCacheConfig(CacheConfig config) throws CacheException {
         if(config==null) {
             throw new NullPointerException("config is null");
@@ -240,15 +152,8 @@ public class SynchronizedCache implements Cache, ManagedCache {
         _tmap = new TreeMap(_config.getAlgorithmComparator());
         _cacheInfo = new CacheInfoImpl();
     }
-
-    /**
-     * Выполняет очистку кеша. Удаляются объекты у которых закончилось время
-     * жизни или превышен период ожидания или если объект равен null.
-     * @throws CacheException если возникли проблемы
-     */
     public void clean() throws CacheException {
-        //объекты из кеша нужно удалять по времени ?
-        if(_config.getTimeToLive()==0 && _config.getIdleTime()==0){
+         if(_config.getTimeToLive()==0 && _config.getIdleTime()==0){
             return;
         }
 
@@ -265,26 +170,11 @@ public class SynchronizedCache implements Cache, ManagedCache {
         }
     }
 
-    //-------------------------------------------------------------------------- ManagedCache interface
-
-// ----------------------------------------------------------------------------- Package scope методы
-// ----------------------------------------------------------------------------- Protected методы
-// ----------------------------------------------------------------------------- Private методы
-
-    /**
-     * Если кеш переполнен, по количеству объектов или по размеру, то
-     * удаляется первый объект в соответсвии с алгоритмом LFU, LRU, FIFO, ...
-     */
+ 
     private void checkOverflow(int objSize) {
-        //произошло переполнение по количеству или размеру ?
-        //если помещаем большой объект то, возможно, из кеша нужно удалить несколько
-        //объектов поменьше поэтому while
         while ( (_config.getMaxSize() > 0 && _map.size()+1   > _config.getMaxSize()) ||
                 (_config.getMaxMemorySize()  > 0 && _memorySize+objSize > _config.getMaxMemorySize()) ) {
-
-            //если в tmap что то есть удаляем первый элемент
-            //при прямой сортировке это будет минимальный элемент
-            //для LRU это будет самый первый использованый объект
+ 
             CacheObject co = _tmap.size()==0 ? null : (CacheObject)_tmap.remove(_tmap.firstKey());
 
             if(co!=null) {
@@ -295,37 +185,27 @@ public class SynchronizedCache implements Cache, ManagedCache {
     }
 
 
-    /**
-     * Создаёт CacheObject с идентификатором objId и помещает его в _map.
-     * @param objId идентификатор объекта
-     */
+ 
     private CacheObject newCacheObject(Object objId) {
         CacheObject co = _config.newCacheObject(objId);
         _map.put(objId, co);
         return co;
     }
-    /**
-     * Возвращает true если объект валидный.
-     * @param co CacheObject
-     */
+ 
     private boolean valid(CacheObject co) {
         long curTime = System.currentTimeMillis();
         return  (_config.getTimeToLive()==0 || (co.getCreateTime()  + _config.getTimeToLive()) >= curTime) &&
                 (_config.getIdleTime()==0 || (co.getLastAccessTime() + _config.getIdleTime()) >= curTime) &&
-                //если используются soft ссылки то возможна ситуация когда объекта
-                //внутри CacheObject может уже не быть
+                //ГҐГ±Г«ГЁ ГЁГ±ГЇГ®Г«ГјГ§ГіГѕГІГ±Гї soft Г±Г±Г»Г«ГЄГЁ ГІГ® ГўГ®Г§Г¬Г®Г¦Г­Г  Г±ГЁГІГіГ Г¶ГЁГї ГЄГ®ГЈГ¤Г  Г®ГЎГєГҐГЄГІГ 
+                //ГўГ­ГіГІГ°ГЁ CacheObject Г¬Г®Г¦ГҐГІ ГіГ¦ГҐ Г­ГҐ ГЎГ»ГІГј
                 co.getObject()!=null;
     }
-    /**
-     *  Корреектирует размер объектов в кеше, обнуляет CacheObject
-     * @param co CacheObject
-     */
+ 
     private void resetCacheObject(CacheObject co){
         _memorySize = _memorySize - co.getObjectSize();
         co.reset();
     }
 
-// ----------------------------------------------------------------------------- Inner классы
     private class CacheInfoImpl implements CacheInfo {
         private long _hit;
         private long _miss;
@@ -367,11 +247,6 @@ public class SynchronizedCache implements Cache, ManagedCache {
         }
         public String toString(){
             return "hit:"+_hit+" miss:"+_miss+" memorySize:"+_memorySize;
-            //DEBUG return "hit:"+_hit+" miss:"+_miss+" memorySize:"+_memorySize+" size:"+_map.size()+" tsize:"+_tmap.size();
-        }
+         }
     }
 }
-
-/*
-$Log: SynchronizedCache.java,v $
-*/
