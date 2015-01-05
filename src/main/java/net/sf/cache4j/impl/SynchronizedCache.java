@@ -23,7 +23,7 @@ public class SynchronizedCache implements Cache, ManagedCache {
 	 */
 	private Map _map;
 
-    //TODO
+    //设置配置项的时候设置treeMap
     private TreeMap _tmap;
 
     /**
@@ -85,7 +85,6 @@ public class SynchronizedCache implements Cache, ManagedCache {
         if(o!=null){
             if(!valid(co)) {
                 remove(co.getObjectId());
-
                 _cacheInfo.incMisses();
                 return null;
             } else {
@@ -196,8 +195,7 @@ public class SynchronizedCache implements Cache, ManagedCache {
         long curTime = System.currentTimeMillis();
         return  (_config.getTimeToLive()==0 || (co.getCreateTime()  + _config.getTimeToLive()) >= curTime) &&
                 (_config.getIdleTime()==0 || (co.getLastAccessTime() + _config.getIdleTime()) >= curTime) &&
-                //åñëè èñïîëüçóþòñÿ soft ññûëêè òî âîçìîæíà ñèòóàöèÿ êîãäà îáúåêòà
-                //âíóòðè CacheObject ìîæåò óæå íå áûòü
+             
                 co.getObject()!=null;
     }
  

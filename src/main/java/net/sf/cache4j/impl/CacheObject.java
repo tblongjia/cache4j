@@ -92,9 +92,9 @@ public class CacheObject {
             while (_lockThread!=null) {
                  wait();
              }
-             _lockThread = Thread.currentThread(); //篑蜞磬怆桠噱� 犭铌桊簋� 镱蝾�
+             _lockThread = Thread.currentThread(); 
         } catch (InterruptedException ex) {
-            notify();      //蜞� � 溻� 疣玎 猁耱疱�
+            notify();     
              throw new CacheException(ex.getMessage());
         }
     }
